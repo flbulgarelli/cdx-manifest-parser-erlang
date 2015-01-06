@@ -1,0 +1,14 @@
+{application, manifest_parser,
+ [
+  {description, "An Erlang manifest_parser library"},
+  {vsn, "1"},
+  {modules, [
+             manifest_parser
+            ]},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {env, []}
+ ]}.
