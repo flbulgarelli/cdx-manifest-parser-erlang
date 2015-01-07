@@ -7,7 +7,7 @@
   parse_decoded_field_mapping/1,
   parse_decoded_source/1,
   apply_mapping_to/2,
-  parse_field_visibility/1,
+  parse_decoded_field_visibility/1,
   apply_field_mapping_to/2,
   extract_value/2]).
 
@@ -26,18 +26,29 @@ parse_decoded_mapping({ _, DecodedFieldMappings }) ->
     parse_decoded_field_mapping(DecodedFieldMapping) end,
   DecodedFieldMappings).
 
-parse_decoded_field_mapping({ Attrs }) ->
-  Target = binary:bin_to_list(lists:keyfind(<<"target_field">>, 1, Attrs)),
-  Type = case lists:keyfind(<<"type">>, 1, Attrs) of
+get(Key, {Attrs}) ->
+  element(2, lists:keyfind(Key, 1, Attrs)).
+
+parse_decoded_field_mapping(DecodedFieldMapping) ->
+  Target = binary:bin_to_list(get(<<"target_field">>, DecodedFieldMapping)),
+  Type = case get(<<"type">>, DecodedFieldMapping) of
           <<"string">> -> string;
           <<"integer">> -> interger;
           <<"enum">> -> enum
         end,
-  Visibility = pii, %%parse_field_visibility(Attrs),
-  Source = binary:bin_to_list(lists:keyfind(<<"source">>, 1, Attrs)),
-  {field_mapping, Target, Source, {Type, Visibility}}.
+  Visibility = parse_decoded_field_visibility(DecodedFieldMapping),
+  Source = parse_decoded_source(get(<<"source">>, DecodedFieldMapping)),
+  {field_mapping, Target, Source, {Visibility, Type}}.
 
-parse_decoded_source(_DecodedSource) -> ok.
+parse_decoded_source({[{<<"lookup">>,DecodedPath}]}) ->
+  {lookup, binary:bin_to_list(DecodedPath) };
+parse_decoded_source({[{<<"beginning_of">>,[{[{<<"path">>,DecodedPath}]}, DecodedPeriod]}]}) ->
+  Period = case DecodedPeriod of
+    <<"year">> -> year;
+    <<"month">> -> month
+  end,
+  {beginning_of, binary:bin_to_list(DecodedPath), Period }.
+
 
 apply_to(Manifest, Event) ->
   apply_field_mapping_to(mapping(Manifest), Event).
@@ -48,10 +59,10 @@ apply_mapping_to(Mapping, Event) ->
     end,
     Mapping).
 
-parse_field_visibility(DecodedMapping) ->
-  case {lists:member({core, true}, DecodedMapping),
-        lists:member({pii, true}, DecodedMapping),
-        lists:member({indexed, true}, DecodedMapping)} of
+parse_decoded_field_visibility({Attrs}) ->
+  case {lists:member({<<"core">>,    <<"true">>}, Attrs),
+        lists:member({<<"pii">>,     <<"true">>}, Attrs),
+        lists:member({<<"indexed">>, <<"true">>}, Attrs)} of
     {true, true,  _   } -> pii;
     {true,    _,  _   } -> indexed;
     {   _, true,  _   } -> pii;

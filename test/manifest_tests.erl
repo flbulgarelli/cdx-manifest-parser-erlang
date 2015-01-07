@@ -51,41 +51,41 @@ extract_value_lookup_test() ->
     [ {patient_information, {age, 2}}, {baz, bar}]),
   ?assertEqual(2, Value).
 
-field_type_for_core_indexed_test() ->
-  Visibility = manifest:parse_field_visibility([
-    {core, true},
-    {indexed, true},
-    {pii, false}]),
+parse_decoded_field_visibility_core_indexed_test() ->
+  Visibility = manifest:parse_decoded_field_visibility({[
+    {<<"core">>, <<"true">>},
+    {<<"indexed">>, <<"true">>},
+    {<<"pii">>, <<"false">>}]}),
   ?assertEqual(indexed, Visibility).
 
-parse_field_visibility_for_core_pii_test() ->
-  Visibility = manifest:parse_field_visibility([
-    {core, true},
-    {indexed, false},
-    {pii, true}]),
+parse_decoded_field_visibility_core_pii_test() ->
+  Visibility = manifest:parse_decoded_field_visibility({[
+    {<<"core">>, <<"true">>},
+    {<<"indexed">>, <<"false">>},
+    {<<"pii">>, <<"true">>}]}),
   ?assertEqual(pii, Visibility).
 
-parse_field_visibility_for_non_core_pii_test() ->
-  Visibility = manifest:parse_field_visibility([
-    {core, false},
-    {indexed, false},
-    {pii, true}]),
+parse_decoded_field_visibility_non_core_pii_test() ->
+  Visibility = manifest:parse_decoded_field_visibility({[
+    {<<"core">>, <<"false">>},
+    {<<"indexed">>, <<"false">>},
+    {<<"pii">>, <<"true">>}]}),
   ?assertEqual(pii, Visibility).
 
-parse_field_visibility_for_non_core_custom_test() ->
-  Visibility = manifest:parse_field_visibility([
-    {core, false},
-    {indexed, false},
-    {pii, false}]),
-  ?assertEqual(indexed, Visibility).
+parse_decoded_field_visibility_non_core_custom_test() ->
+  Visibility = manifest:parse_decoded_field_visibility({[
+    {<<"core">>, <<"false">>},
+    {<<"indexed">>, <<"false">>},
+    {<<"pii">>, <<"false">>}]}),
+  ?assertEqual(custom, Visibility).
 
 parse_decoded_field_mapping_test() ->
   DecodedFieldMapping = {[
     {<<"target_field">>,<<"foo">>},
     {<<"type">>,<<"string">>},
-    {<<"core">>,true},
-    {<<"indexed">>,true},
-    {<<"pii">>,false},
+    {<<"core">>,<<"true">>},
+    {<<"indexed">>,<<"true">>},
+    {<<"pii">>,<<"false">>},
     {<<"source">>,{[{<<"lookup">>,<<"bar">>}]}}
   ]},
   FieldMapping = manifest:parse_decoded_field_mapping(DecodedFieldMapping),
