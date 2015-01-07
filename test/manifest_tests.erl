@@ -36,11 +36,17 @@ apply_field_mapping_test() ->
     [ {month, "jan_foo_bar"}, {baz, bar} ]),
   ?assertEqual({field, foo, "jan", {indexed, string}}, Field).
 
-extract_value_test() ->
+extract_value_beginning_of_test() ->
   Value = manifest:extract_value(
     {beginning_of, "patient_information.age", "month"},
     [ {month, "jan_foo_bar"}, {baz, bar}]),
   ?assertEqual("jan", Value).
+
+extract_value_lookup_test() ->
+  Value = manifest:extract_value(
+    {lookup, "patient_information.age"},
+    [ {patient_information, {age, 2}}, {baz, bar}]),
+  ?assertEqual(2, Value).
 
 field_type_for_core_indexed_test() ->
   Visibility = manifest:parse_field_visibility([
