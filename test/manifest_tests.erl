@@ -16,7 +16,7 @@ apply_mapping_test() ->
 
 apply_field_mapping_test() ->
   Field = manifest:apply_field_mapping_to(
-    { field_mapping, <<"foo">>, {beginning_of, <<"patient_information.age">>, month}, {indexed, string} },
+    { field_mapping, <<"foo">>, {lookup, <<"patient_information.age">>}, {indexed, string} },
     {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}),
   ?assertEqual({field, <<"foo">>, 21, {indexed, string}}, Field).
 

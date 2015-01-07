@@ -9,7 +9,7 @@
 mapping({manifest, _, Mapping}) -> Mapping.
 
 apply_to(Manifest, Event) ->
-  apply_field_mapping_to(mapping(Manifest), Event).
+  apply_mapping_to(mapping(Manifest), Event).
 
 apply_mapping_to(Mapping, Event) ->
   lists:map(fun(FieldMapping) ->
@@ -18,7 +18,7 @@ apply_mapping_to(Mapping, Event) ->
     Mapping).
 
 apply_field_mapping_to({field_mapping, Target, Source, Signature}, Event) ->
- {field, ok, extract_value(Source, Event), Signature }.
+ {field, Target, extract_value(Source, Event), Signature }.
 
 extract_value({lookup, Path}, Event) ->
   jsonpath:search(Path, Event);
