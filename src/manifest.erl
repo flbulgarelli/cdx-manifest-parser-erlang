@@ -3,6 +3,9 @@
 -export([
   parse/1,
   apply_to/2,
+  parse_decoded_mapping/1,
+  parse_decoded_field_mapping/1,
+  parse_decoded_source/1,
   apply_mapping_to/2,
   parse_field_visibility/1,
   apply_field_mapping_to/2,
@@ -10,7 +13,31 @@
 
 mapping({manifest, _, Mapping}) -> Mapping.
 
-parse(_ManifestJson) -> ok.
+parse(ManifestJson) ->
+  parse_decoded(jiffy:decode(ManifestJson)).
+
+parse_decoded(DecodedManifest) ->
+  Mapping = parse_decoded_mapping(lists:keyfind(<<"field_mapping">>, 1, DecodedManifest)),
+  {manifest, {}, Mapping}.
+
+
+parse_decoded_mapping({ _, DecodedFieldMappings }) ->
+  lists:map(fun(DecodedFieldMapping) ->
+    parse_decoded_field_mapping(DecodedFieldMapping) end,
+  DecodedFieldMappings).
+
+parse_decoded_field_mapping({ Attrs }) ->
+  Target = binary:bin_to_list(lists:keyfind(<<"target_field">>, 1, Attrs)),
+  Type = case lists:keyfind(<<"type">>, 1, Attrs) of
+          <<"string">> -> string;
+          <<"integer">> -> interger;
+          <<"enum">> -> enum
+        end,
+  Visibility = pii, %%parse_field_visibility(Attrs),
+  Source = binary:bin_to_list(lists:keyfind(<<"source">>, 1, Attrs)),
+  {field_mapping, Target, Source, {Type, Visibility}}.
+
+parse_decoded_source(_DecodedSource) -> ok.
 
 apply_to(Manifest, Event) ->
   apply_field_mapping_to(mapping(Manifest), Event).
@@ -21,10 +48,10 @@ apply_mapping_to(Mapping, Event) ->
     end,
     Mapping).
 
-parse_field_visibility(RawManifest) ->
-  case {lists:member({core, true}, RawManifest),
-        lists:member({pii, true}, RawManifest),
-        lists:member({indexed, true}, RawManifest)} of
+parse_field_visibility(DecodedMapping) ->
+  case {lists:member({core, true}, DecodedMapping),
+        lists:member({pii, true}, DecodedMapping),
+        lists:member({indexed, true}, DecodedMapping)} of
     {true, true,  _   } -> pii;
     {true,    _,  _   } -> indexed;
     {   _, true,  _   } -> pii;
