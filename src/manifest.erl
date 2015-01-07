@@ -20,7 +20,6 @@ parse_decoded(DecodedManifest) ->
   Mapping = parse_decoded_mapping(lists:keyfind(<<"field_mapping">>, 1, DecodedManifest)),
   {manifest, {}, Mapping}.
 
-
 parse_decoded_mapping({ _, DecodedFieldMappings }) ->
   lists:map(fun(DecodedFieldMapping) ->
     parse_decoded_field_mapping(DecodedFieldMapping) end,
@@ -49,7 +48,6 @@ parse_decoded_source({[{<<"beginning_of">>,[{[{<<"path">>,DecodedPath}]}, Decode
   end,
   {beginning_of, binary:bin_to_list(DecodedPath), Period }.
 
-
 apply_to(Manifest, Event) ->
   apply_field_mapping_to(mapping(Manifest), Event).
 
@@ -70,19 +68,17 @@ parse_decoded_field_visibility({Attrs}) ->
     _                   -> custom
   end.
 
-
 apply_field_mapping_to({field_mapping, Target, Source, Signature}, Event) ->
  {field, ok, extract_value(Source, Event), Signature }.
 
-extract_value({lookup, _}, Event) -> ok;
+extract_value({lookup, Path}, Event) ->
+  jsonpath:search(Path, Event);
 extract_value({beginning_of, _, _}, Event) -> ok;
 extract_value({strip, _, _}, Event) -> ok;
 extract_value({concat, _, _}, Event) -> ok;
 extract_value({substring, _, _}, Event) -> ok;
 extract_value({milliseconds_between, _, _}, Event) -> ok;
 extract_value({convert_time, _, _}, Event) -> ok.
-
-
 
 %% manifest: {manifest, Metadata, Mapping }
 %% Mapping: [ FieldMapping ]

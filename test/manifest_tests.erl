@@ -47,9 +47,9 @@ extract_value_beginning_of_test() ->
 
 extract_value_lookup_test() ->
   Value = manifest:extract_value(
-    {lookup, "patient_information.age"},
-    [ {patient_information, {age, 2}}, {baz, bar}]),
-  ?assertEqual(2, Value).
+    {lookup, <<"patient_information.age">>},
+    {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}),
+  ?assertEqual(21, Value).
 
 parse_decoded_field_visibility_core_indexed_test() ->
   Visibility = manifest:parse_decoded_field_visibility({[
@@ -101,6 +101,3 @@ parse_decoded_source_beginning_of_test() ->
   DecodedSource = {[{<<"beginning_of">>,[{[{<<"path">>,<<"patient_information.age">>}]}, <<"month">>]}]},
   Source = manifest:parse_decoded_source(DecodedSource),
   ?assertEqual({beginning_of, "patient_information.age", month}, Source).
-
-
-
