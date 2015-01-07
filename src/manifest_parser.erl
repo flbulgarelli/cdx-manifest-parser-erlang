@@ -22,7 +22,7 @@ parse_decoded_mapping({ _, DecodedFieldMappings }) ->
   DecodedFieldMappings).
 
 parse_decoded_field_mapping(DecodedFieldMapping) ->
-  Target = binary:bin_to_list(get(<<"target_field">>, DecodedFieldMapping)),
+  Target = get(<<"target_field">>, DecodedFieldMapping),
   Type = case get(<<"type">>, DecodedFieldMapping) of
           <<"string">> -> string;
           <<"integer">> -> interger;
@@ -43,14 +43,14 @@ parse_decoded_field_visibility({Attrs}) ->
     _                   -> custom
   end.
 
-parse_decoded_source({[{<<"lookup">>,DecodedPath}]}) ->
-  {lookup, binary:bin_to_list(DecodedPath) };
-parse_decoded_source({[{<<"beginning_of">>,[{[{<<"path">>,DecodedPath}]}, DecodedPeriod]}]}) ->
+parse_decoded_source({[{<<"lookup">>,Path}]}) ->
+  {lookup, Path };
+parse_decoded_source({[{<<"beginning_of">>,[{[{<<"path">>,Path}]}, DecodedPeriod]}]}) ->
   Period = case DecodedPeriod of
     <<"year">> -> year;
     <<"month">> -> month
   end,
-  {beginning_of, binary:bin_to_list(DecodedPath), Period }.
+  {beginning_of, Path, Period }.
 
 
 get(Key, {Attrs}) ->

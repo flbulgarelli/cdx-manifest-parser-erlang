@@ -3,36 +3,32 @@
 
 apply_manifest_test() ->
   Manifest = { manifest, {}, [
-    { field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} } ]},
-  Event = [
-      {month, "jan_foo_bar"},
-      {baz, bar}],
+    { field_mapping, <<"foo">>, {lookup, <<"patient_information.age">>}, {indexed, string} } ]},
+  Event = {[{<<"patient_information">>,{[{<<"age">>,21}]}}]},
   Fields = manifest:apply_to(Manifest, Event),
-  ?assertEqual([{field, foo, "jan", {indexed, string}}], Fields).
+  ?assertEqual([{field, <<"foo">>, 21, {indexed, string}}], Fields).
 
 apply_mapping_test() ->
-  Mapping =  [{ field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} }],
-  Event = [
-      {month, "jan_foo_bar"},
-      {baz, bar}],
+  Mapping =  [{ field_mapping, <<"foo">>, {lookup, <<"patient_information.age">>}, {indexed, string} }],
+  Event = {[{<<"patient_information">>,{[{<<"age">>,21}]}}]},
   Fields = manifest:apply_mapping_to(Mapping, Event),
-  ?assertEqual([{field, foo, "jan", {indexed, string}}], Fields).
+  ?assertEqual([{field, <<"foo">>, 21, {indexed, string}}], Fields).
 
 apply_field_mapping_test() ->
   Field = manifest:apply_field_mapping_to(
-    { field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} },
+    { field_mapping, <<"foo">>, {beginning_of, <<"patient_information.age">>, month}, {indexed, string} },
     {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}),
-  ?assertEqual({field, "foo", 21, {indexed, string}}, Field).
+  ?assertEqual({field, <<"foo">>, 21, {indexed, string}}, Field).
 
 extract_value_beginning_of_month_test() ->
   Value = manifest:extract_value(
-    {beginning_of, "patient_information.bith", "month"},
+    {beginning_of, <<"patient_information.bith">>, month},
     {[{<<"patient_information">>,{[{<<"birth">>,"1993-4-24"}]}}]}),
   ?assertEqual("4", Value).
 
 extract_value_beginning_of_year_test() ->
   Value = manifest:extract_value(
-    {beginning_of, "patient_information.bith", "year"},
+    {beginning_of, <<"patient_information.bith">>, year},
     {[{<<"patient_information">>,{[{<<"birth">>,"1993-4-24"}]}}]}),
   ?assertEqual("1993", Value).
 

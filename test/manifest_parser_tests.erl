@@ -45,7 +45,7 @@ manifest_from_json_test() ->
         \"lookup\": \"bar\"
       }}]}">>),
   ?assertEqual({ manifest, {}, [
-    { field_mapping, "foo", {lookup, "bar"}, {indexed, string} }]}, Manifest).
+    { field_mapping, "foo", {lookup, <<"bar">>}, {indexed, string} }]}, Manifest).
 
 parse_decoded_field_visibility_core_indexed_test() ->
   Visibility = manifest_parser:parse_decoded_field_visibility({[
@@ -85,15 +85,15 @@ parse_decoded_field_mapping_test() ->
     {<<"source">>,{[{<<"lookup">>,<<"bar">>}]}}
   ]},
   FieldMapping = manifest_parser:parse_decoded_field_mapping(DecodedFieldMapping),
-  ?assertEqual({field_mapping, "foo", {lookup, "bar"}, {indexed, string}}, FieldMapping).
+  ?assertEqual({field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string}}, FieldMapping).
 
 parse_decoded_source_lookup_test() ->
   DecodedSource = {[{<<"lookup">>,<<"bar">>}]},
   Source = manifest_parser:parse_decoded_source(DecodedSource),
-  ?assertEqual({lookup, "bar"}, Source).
+  ?assertEqual({lookup, <<"bar">>}, Source).
 
 
 parse_decoded_source_beginning_of_test() ->
   DecodedSource = {[{<<"beginning_of">>,[{[{<<"path">>,<<"patient_information.age">>}]}, <<"month">>]}]},
   Source = manifest_parser:parse_decoded_source(DecodedSource),
-  ?assertEqual({beginning_of, "patient_information.age", month}, Source).
+  ?assertEqual({beginning_of, <<"patient_information.age">>, month}, Source).
