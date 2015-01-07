@@ -21,14 +21,20 @@ apply_mapping_test() ->
 apply_field_mapping_test() ->
   Field = manifest:apply_field_mapping_to(
     { field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} },
-    [ {month, "jan_foo_bar"}, {baz, bar} ]),
-  ?assertEqual({field, foo, "jan", {indexed, string}}, Field).
+    {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}),
+  ?assertEqual({field, "foo", 21, {indexed, string}}, Field).
 
-extract_value_beginning_of_test() ->
+extract_value_beginning_of_month_test() ->
   Value = manifest:extract_value(
-    {beginning_of, "patient_information.age", "month"},
-    [ {month, "jan_foo_bar"}, {baz, bar}]),
-  ?assertEqual("jan", Value).
+    {beginning_of, "patient_information.bith", "month"},
+    {[{<<"patient_information">>,{[{<<"birth">>,"1993-4-24"}]}}]}),
+  ?assertEqual("4", Value).
+
+extract_value_beginning_of_year_test() ->
+  Value = manifest:extract_value(
+    {beginning_of, "patient_information.bith", "year"},
+    {[{<<"patient_information">>,{[{<<"birth">>,"1993-4-24"}]}}]}),
+  ?assertEqual("1993", Value).
 
 extract_value_lookup_test() ->
   Value = manifest:extract_value(

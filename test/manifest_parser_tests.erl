@@ -1,6 +1,37 @@
 -module(manifest_parser_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+manifest_from_json_integration_test() ->
+  Manifest = manifest_parser:parse(<<"{
+    \"metadata\": {},
+    \"field_mapping\": [{
+      \"target_field\": \"foo\",
+      \"type\": \"string\",
+      \"core\": true,
+      \"indexed\": true,
+      \"pii\": false,
+      \"source\": {
+        \"lookup\": \"foo.bar\"
+      }},
+      \"target_field\": \"fux\",
+      \"type\": \"integer\",
+      \"core\": false,
+      \"indexed\": fase,
+      \"pii\": true,
+      \"source\": {
+        \"lookup\": \"foo.fux\"
+      }}]
+    }">>),
+  Event = jiffy:decode(<<"{
+    \"foo\": {
+      \"bar\":\"hello\",
+      \"fux\": 3
+    }}">>),
+  Result = manifest:apply_to(Manifest, Event),
+  ?assertEqual([
+    {field, "foo", "hello", {indexed, string}},
+    {field, "fux", 3,       {pii, integer}   }], Result).
+
 manifest_from_json_test() ->
   Manifest = manifest_parser:parse(<<"{
     \"metadata\": {},
