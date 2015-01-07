@@ -1,9 +1,10 @@
 {application, manifest_parser,
  [
-  {description, "An Erlang manifest_parser library"},
+  {description, "An Erlang library for parsing CDX Manifests"},
   {vsn, "1"},
   {modules, [
-             manifest_parser
+             manifest_parser, 
+             manifest
             ]},
   {registered, []},
   {applications, [
