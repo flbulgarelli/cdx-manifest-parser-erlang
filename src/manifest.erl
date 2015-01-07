@@ -1,34 +1,34 @@
 -module(manifest).
 
--export([apply/2]).
+-export([parse_field_visibility/1, 
+  apply_field_mapping_to/2, 
+  extract_value/2]).
 
 
-field_value({pii, Value}) -> Value;
-field_value({indexed, Value}) -> Value;
-field_value({custom, Value}) -> Value.
+parse_field_visibility(RawManifest) ->
+  case {lists:member({core, true}, RawManifest), 
+        lists:member({pii, true}, RawManifest),
+        lists:member({indexed, true}, RawManifest)} of
+    {true, true,  _   } -> pii;
+    {true,    _,  _   } -> indexed;
+    {   _, true,  _   } -> pii;
+    {   _,    _,  true} -> indexed;
+    _                   -> custom
+  end.
 
-field_type({pii, _}) -> pii;
-field_type({indexed, _}) -> indexed;
-field_type({custom, _}) -> custom.
 
-field_type_for(Visibility) ->
+apply_field_mapping_to(FieldMapping, Event) ->
+ ok.
 
-
-def hash_key
-    if @field["core"]
-      return :pii if Event.pii?(@target_field)
-      :indexed
-    else
-      return :pii if @field["pii"]
-      return :indexed if @field["indexed"]
-      :custom
-    end
-  end
+extract_value(Source, Event) -> ok. 
 
   
-%% manifest: 
-%%{{...metadata...},{...mapping...}} 
+%% manifest: {manifest, Metadata, Mapping }
 %% Mapping: [ FieldMapping ]
-%% FieldMapping : { field_mapping, Target, Type, Visibility, Source  }
+%% FieldMapping : { field_mapping, Target, Source, Signature }
+%% Signature : {Visibility, Type}
 %% Visibility : custom | indexed | pii
+%% Type : string | integer | boolean
 %% Source : 
+
+%% field : { field, Name, Value, Signature  }

@@ -1,69 +1,72 @@
+-module(manifest_tests).
+-include_lib("eunit/include/eunit.hrl").
 
+manifed_from_json_test() ->
+  Manifest = manifest:parse(<<"{
+    \"metadata\": {},
+    \"field_mapping\": [{
+      \"target_field\": \"foo\",
+      \"type\": \"string\",
+      \"core\": true,
+      \"indexed\": true,
+      \"pii\": false }]}">>),
+  ?assertEqual({ manifest, {}, [
+    { field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} }]}, Manifest).
 
 apply_manifest_test() ->
-  Fields = manifest:apply_to(
-    {{}, [[
-      {target_field, "foo"}, 
-      {type, string}, 
-      {core, true}, 
-      {indexed, true}, 
-      {pii, false}, 
-      {source,  
-       {beginning_of, "patient_information.age", "month"}
-      }]]},
-    [
-      {month, "jan_foo_bar"}, 
-      {baz, bar}]),
-  ?assertEqual([{foo, {indexed, "jan"}}], Fields).
+  Manifest = { manifest, {}, [
+    { field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} } ]},
+  Event = [
+      {month, "jan_foo_bar"},
+      {baz, bar}],
+  Fields = manifest:apply_to(Manifest, Event),
+  ?assertEqual([{field, foo, "jan", {indexed, string}}], Fields).
 
+apply_mapping_test() ->
+  Mapping =  [{ field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} }],
+  Event = [
+      {month, "jan_foo_bar"},
+      {baz, bar}],
+  Fields = manifest:apply_mapping_to(Mapping, Event),
+  ?assertEqual([{field, foo, "jan", {indexed, string}}], Fields).
 
-apply_field_test() ->
-  Field = manifest:apply_field_to([
-      {target_field, "foo"}, 
-      {type, string}, 
-      {core, true}, 
-      {indexed, true}, 
-      {pii, false}, 
-      {source,  
-       {beginning_of, "patient_information.age", "month"}
-      }],
-    [
-      {month, "jan_foo_bar"}, 
-      {baz, bar}]),
-  ?assertEqual({foo, {indexed, "jan"}}, Field).
+apply_field_mapping_test() ->
+  Field = manifest:apply_field_mapping_to(
+    { field_mapping, "foo", {beginning_of, "patient_information.age", "month"}, {indexed, string} },
+    [ {month, "jan_foo_bar"}, {baz, bar} ]),
+  ?assertEqual({field, foo, "jan", {indexed, string}}, Field).
 
 extract_value_test() ->
-  Value = extract_value(
-    {beginning_of, "patient_information.age", "month"}, 
+  Value = manifest:extract_value(
+    {beginning_of, "patient_information.age", "month"},
     [ {month, "jan_foo_bar"}, {baz, bar}]),
   ?assertEqual("jan", Value).
 
-
-field_type_for_core_indexed_test() -> 
-  FieldType = field_type_for([
-    {core, true}, 
-    {indexed, true}, 
+field_type_for_core_indexed_test() ->
+  Visibility = manifest:parse_field_visibility([
+    {core, true},
+    {indexed, true},
     {pii, false}]),
-  ?assertEqual(indexed, FieldType).
+  ?assertEqual(indexed, Visibility).
 
-field_type_for_core_pii_test() -> 
-  FieldType = field_type_for([
-    {core, true}, 
-    {indexed, false}, 
+parse_field_visibility_for_core_pii_test() ->
+  Visibility = manifest:parse_field_visibility([
+    {core, true},
+    {indexed, false},
     {pii, true}]),
-  ?assertEqual(pii, FieldType).
+  ?assertEqual(pii, Visibility).
 
-field_type_for_non_core_pii_test() -> 
-  FieldType = field_type_for([
-    {core, false}, 
-    {indexed, false}, 
+parse_field_visibility_for_non_core_pii_test() ->
+  Visibility = manifest:parse_field_visibility([
+    {core, false},
+    {indexed, false},
     {pii, true}]),
-  ?assertEqual(pii, FieldType).
+  ?assertEqual(pii, Visibility).
 
-field_type_for_non_core_custom_test() -> 
-  FieldType = field_type_for([
-    {core, false}, 
-    {indexed, false}, 
+parse_field_visibility_for_non_core_custom_test() ->
+  Visibility = manifest:parse_field_visibility([
+    {core, false},
+    {indexed, false},
     {pii, false}]),
-  ?assertEqual(indexed, FieldType).
+  ?assertEqual(indexed, Visibility).
 
