@@ -10,10 +10,22 @@ This repository contains a simple library for parsing and processing [CDX Manife
 
 # Processing Manifests
 
-The manifest parser expects Events to be complaint with [Jiffy](https://github.com/davisp/jiffy) encoding format of JSON into Erlang terms.
+Manifests are proceesed using the `manifest:apply_to/2` function, which expects a manifest, as returned by `manifest_parser:parse/1`, and an event. The event is a JSON encoded as Erlang term using [Jiffy](https://github.com/davisp/jiffy) data format.
 
 ```erlang
+> manifest:apply_to(
+    {manifest, {}, [ { field_mapping, <<"foo">>, {lookup, <<"patient_information.age">>}, {indexed, string} }]},
+    {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}).
+[{field,<<"foo">>,21,{indexed,string}}]
 ```
+
+`manifest:apply_to/2` returns a list of processed fields according to the manifest. A field is a 4-tuple that has the following format:
+
+```erlang
+{field, Name, Value, Signature}
+```
+
+...where signature has the same format as described previously.
 
 # Full Sample
 
@@ -84,3 +96,4 @@ This library has limited support of CDX Manifests:
   * ``options``
   * ``valid_values``
 * Only ``lookup`` and ``beginning_of`` sources are supported
+* Timezones are not supported when parsing dates. 
