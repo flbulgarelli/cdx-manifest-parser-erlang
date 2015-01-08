@@ -20,17 +20,27 @@ manifest_from_json_integration_test() ->
       \"pii\": true,
       \"source\": {
         \"lookup\": \"foo.fux\"
+      }}, {
+      \"target_field\": \"foobar\",
+      \"type\": \"integer\",
+      \"core\": false,
+      \"indexed\": false,
+      \"pii\": false,
+      \"source\": {
+        \"beginning_of\": [{\"path\":\"foo.baz\"}, \"month\"]
       }}]
     }">>),
   Event = jiffy:decode(<<"{
     \"foo\": {
       \"bar\":\"hello\",
-      \"fux\": 3
+      \"fux\": 3,
+      \"baz\": \"1990-01-30T00:00:00\"
     }}">>),
   Result = manifest:apply_to(Manifest, Event),
   ?assertEqual([
-    {field, <<"foo">>, <<"hello">>, {indexed, string}},
-    {field, <<"fux">>, 3,           {pii, integer}   }], Result).
+    {field, <<"foo">>,    <<"hello">>, {indexed, string }},
+    {field, <<"fux">>,    3,           {pii,     integer}},
+    {field, <<"foobar">>, 1,           {custom,  integer}}], Result).
 
 manifest_from_json_test() ->
   Manifest = manifest_parser:parse(<<"{

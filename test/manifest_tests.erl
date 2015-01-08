@@ -22,15 +22,15 @@ apply_field_mapping_test() ->
 
 extract_value_beginning_of_month_test() ->
   Value = manifest:extract_value(
-    {beginning_of, <<"patient_information.bith">>, month},
-    {[{<<"patient_information">>,{[{<<"birth">>,"1993-4-24"}]}}]}),
-  ?assertEqual("4", Value).
+    {beginning_of, <<"patient_information.birth">>, month},
+    {[{<<"patient_information">>,{[{<<"birth">>,<<"1993-04-24T02:25:12">>}]}}]}),
+  ?assertEqual(4, Value).
 
 extract_value_beginning_of_year_test() ->
   Value = manifest:extract_value(
-    {beginning_of, <<"patient_information.bith">>, year},
-    {[{<<"patient_information">>,{[{<<"birth">>,"1993-4-24"}]}}]}),
-  ?assertEqual("1993", Value).
+    {beginning_of, <<"patient_information.birth">>, year},
+    {[{<<"patient_information">>,{[{<<"birth">>,<<"1993-04-24T02:25:12">>}]}}]}),
+  ?assertEqual(1993, Value).
 
 extract_value_lookup_test() ->
   Value = manifest:extract_value(
