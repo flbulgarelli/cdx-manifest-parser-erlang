@@ -3,14 +3,25 @@ CDX Manifest Parser
 
 This repository contains a simple library for parsing and processing [CDX Manifests](http://dxapi.org/#/manifest) in the Erlang language.
 
-# Parsing Manifests
+# Core Types
+
+The core type of this library is the manifest, which is a 3-tuple with the following format:
 
 ```erlang
+Manifest :: {manifest, Metadata, Mapping}
+Metadata :: {} (*) See below
+Mapping :: [ FieldMapping ]
+FieldMapping :: { field_mapping, Target, Source, Signature }
+Signature :: {Visibility, Type}
+Visibility :: custom | indexed | pii
+Type :: string | integer | enum
+Source :: {lookup, Path } |
+          {beginning_of, Path, TimeUnit }
 ```
 
 # Processing Manifests
 
-Manifests are proceesed using the `manifest:apply_to/2` function, which expects a manifest, as returned by `manifest_parser:parse/1`, and an event. The event is a JSON encoded as Erlang term using [Jiffy](https://github.com/davisp/jiffy) data format.
+Manifests are proceesed using the `manifest:apply_to/2` function, which expects a manifest and an event. The event is a JSON encoded as Erlang term using [Jiffy](https://github.com/davisp/jiffy) data format.
 
 ```erlang
 > manifest:apply_to(
@@ -22,10 +33,34 @@ Manifests are proceesed using the `manifest:apply_to/2` function, which expects 
 `manifest:apply_to/2` returns a list of processed fields according to the manifest. A field is a 4-tuple that has the following format:
 
 ```erlang
-{field, Name, Value, Signature}
+ Field :: {field, Name, Value, Signature}
+ Signature :: ...as described previously...
 ```
 
-...where signature has the same format as described previously.
+`manifest:apply_to/2` will fail under some scenarios, raising the following errors:
+  * `{undefined_path, Path, Event}` if the path does not point to a valid value within the given event
+
+# Parsing Manifests
+
+In order to parse a manifest from a JSON string, just use `manifest_parser:parse/1`, which expects a JSON string and returns a manifest. 
+
+```erlang
+manifest_parser:parse(<<"{
+    \"metadata\": {},
+    \"field_mapping\": [{
+      \"target_field\": \"foo\",
+      \"type\": \"string\",
+      \"core\": true,
+      \"indexed\": true,
+      \"pii\": false,
+      \"source\": {
+        \"lookup\": \"bar\"
+      }}]}">>).
+{manifest,{},
+          [{field_mapping,<<"foo">>,
+                          {lookup,<<"bar">>},
+                          {indexed,string}}]}
+```
 
 # Full Sample
 
@@ -87,6 +122,7 @@ Manifests are proceesed using the `manifest:apply_to/2` function, which expects 
  {field,<<"foobar">>,ok,{custom,integer}}]
 
 ```
+
 
 # Compliance with DXAPI
 
