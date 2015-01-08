@@ -37,3 +37,8 @@ extract_value_lookup_test() ->
     {lookup, <<"patient_information.age">>},
     {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}),
   ?assertEqual(21, Value).
+
+extract_value_lookup_error_test() ->
+  Path = <<"name">>,
+  Event = {[]},
+  ?assertError({undefined_path, Path, Event}, manifest:extract_value({lookup, Path}, Event)).

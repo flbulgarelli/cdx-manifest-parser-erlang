@@ -27,11 +27,14 @@ extract_value({beginning_of, Path, TimeUnit}, Event) ->
 extract_value({strip, _, _}, _Event) -> ok;
 extract_value({concat, _, _}, _Event) -> ok;
 extract_value({substring, _, _}, _Event) -> ok;
-extract_value({milliseconds_between, _, _}, Event) -> ok;
+extract_value({milliseconds_between, _, _}, _Event) -> ok;
 extract_value({convert_time, _, _}, _Event) -> ok.
 
 lookup_raw(Path, Event)    ->
-  jsonpath:search(Path, Event).
+  case jsonpath:search(Path, Event) of
+    undefined -> error({undefined_path, Path, Event});
+    X -> X
+  end.
 lookup_string(Path, Event) ->
   binary:bin_to_list(lookup_raw(Path, Event)).
 lookup_date(Path, Event)   ->
