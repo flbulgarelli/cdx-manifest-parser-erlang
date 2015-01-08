@@ -42,13 +42,3 @@ lookup_date(Path, Event)   ->
 
 beginning_of({{_, Month, _}, _}, month) -> Month;
 beginning_of({{Year, _, _}, _},  year) -> Year.
-
-%% manifest: {manifest, Metadata, Mapping }
-%% Mapping: [ FieldMapping ]
-%% FieldMapping : { field_mapping, Target, Source, Signature }
-%% Signature : {Visibility, Type}
-%% Visibility : custom | indexed | pii
-%% Type : string | integer | boolean
-%% Source :
-
-%% field : { field, Name, Value, Signature  }
