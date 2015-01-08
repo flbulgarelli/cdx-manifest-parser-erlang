@@ -12,11 +12,11 @@ manifest_from_json_integration_test() ->
       \"pii\": false,
       \"source\": {
         \"lookup\": \"foo.bar\"
-      }},
+      }}, {
       \"target_field\": \"fux\",
       \"type\": \"integer\",
       \"core\": false,
-      \"indexed\": fase,
+      \"indexed\": false,
       \"pii\": true,
       \"source\": {
         \"lookup\": \"foo.fux\"
@@ -29,8 +29,8 @@ manifest_from_json_integration_test() ->
     }}">>),
   Result = manifest:apply_to(Manifest, Event),
   ?assertEqual([
-    {field, "foo", "hello", {indexed, string}},
-    {field, "fux", 3,       {pii, integer}   }], Result).
+    {field, <<"foo">>, <<"hello">>, {indexed, string}},
+    {field, <<"fux">>, 3,           {pii, integer}   }], Result).
 
 manifest_from_json_test() ->
   Manifest = manifest_parser:parse(<<"{
@@ -45,43 +45,43 @@ manifest_from_json_test() ->
         \"lookup\": \"bar\"
       }}]}">>),
   ?assertEqual({ manifest, {}, [
-    { field_mapping, "foo", {lookup, <<"bar">>}, {indexed, string} }]}, Manifest).
+    { field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string} }]}, Manifest).
 
 parse_decoded_field_visibility_core_indexed_test() ->
   Visibility = manifest_parser:parse_decoded_field_visibility({[
-    {<<"core">>, <<"true">>},
-    {<<"indexed">>, <<"true">>},
-    {<<"pii">>, <<"false">>}]}),
+    {<<"core">>, true},
+    {<<"indexed">>, true},
+    {<<"pii">>, false}]}),
   ?assertEqual(indexed, Visibility).
 
 parse_decoded_field_visibility_core_pii_test() ->
   Visibility = manifest_parser:parse_decoded_field_visibility({[
-    {<<"core">>, <<"true">>},
-    {<<"indexed">>, <<"false">>},
-    {<<"pii">>, <<"true">>}]}),
+    {<<"core">>, true},
+    {<<"indexed">>, false},
+    {<<"pii">>, true}]}),
   ?assertEqual(pii, Visibility).
 
 parse_decoded_field_visibility_non_core_pii_test() ->
   Visibility = manifest_parser:parse_decoded_field_visibility({[
-    {<<"core">>, <<"false">>},
-    {<<"indexed">>, <<"false">>},
-    {<<"pii">>, <<"true">>}]}),
+    {<<"core">>, false},
+    {<<"indexed">>, false},
+    {<<"pii">>, true}]}),
   ?assertEqual(pii, Visibility).
 
 parse_decoded_field_visibility_non_core_custom_test() ->
   Visibility = manifest_parser:parse_decoded_field_visibility({[
-    {<<"core">>, <<"false">>},
-    {<<"indexed">>, <<"false">>},
-    {<<"pii">>, <<"false">>}]}),
+    {<<"core">>, false},
+    {<<"indexed">>, false},
+    {<<"pii">>, false}]}),
   ?assertEqual(custom, Visibility).
 
 parse_decoded_field_mapping_test() ->
   DecodedFieldMapping = {[
     {<<"target_field">>,<<"foo">>},
     {<<"type">>,<<"string">>},
-    {<<"core">>,<<"true">>},
-    {<<"indexed">>,<<"true">>},
-    {<<"pii">>,<<"false">>},
+    {<<"core">>,true},
+    {<<"indexed">>,true},
+    {<<"pii">>,false},
     {<<"source">>,{[{<<"lookup">>,<<"bar">>}]}}
   ]},
   FieldMapping = manifest_parser:parse_decoded_field_mapping(DecodedFieldMapping),

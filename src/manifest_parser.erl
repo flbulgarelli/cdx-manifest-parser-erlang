@@ -12,8 +12,8 @@
 parse(ManifestJson) ->
   parse_decoded(jiffy:decode(ManifestJson)).
 
-parse_decoded(DecodedManifest) ->
-  Mapping = parse_decoded_mapping(lists:keyfind(<<"field_mapping">>, 1, DecodedManifest)),
+parse_decoded({Attrs}) ->
+  Mapping = parse_decoded_mapping(lists:keyfind(<<"field_mapping">>, 1, Attrs)),
   {manifest, {}, Mapping}.
 
 parse_decoded_mapping({ _, DecodedFieldMappings }) ->
@@ -25,7 +25,7 @@ parse_decoded_field_mapping(DecodedFieldMapping) ->
   Target = get(<<"target_field">>, DecodedFieldMapping),
   Type = case get(<<"type">>, DecodedFieldMapping) of
           <<"string">> -> string;
-          <<"integer">> -> interger;
+          <<"integer">> -> integer;
           <<"enum">> -> enum
         end,
   Visibility = parse_decoded_field_visibility(DecodedFieldMapping),
@@ -33,9 +33,9 @@ parse_decoded_field_mapping(DecodedFieldMapping) ->
   {field_mapping, Target, Source, {Visibility, Type}}.
 
 parse_decoded_field_visibility({Attrs}) ->
-  case {lists:member({<<"core">>,    <<"true">>}, Attrs),
-        lists:member({<<"pii">>,     <<"true">>}, Attrs),
-        lists:member({<<"indexed">>, <<"true">>}, Attrs)} of
+  case {lists:member({<<"core">>,    true}, Attrs),
+        lists:member({<<"pii">>,     true}, Attrs),
+        lists:member({<<"indexed">>, true}, Attrs)} of
     {true, true,  _   } -> pii;
     {true,    _,  _   } -> indexed;
     {   _, true,  _   } -> pii;
