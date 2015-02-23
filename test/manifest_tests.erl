@@ -20,6 +20,13 @@ apply_field_mapping_test() ->
     {[{<<"patient_information">>,{[{<<"age">>,21}]}}]}),
   ?assertEqual({field, <<"foo">>, 21, {indexed, string}}, Field).
 
+
+extract_value_beginning_of_day_test() ->
+  Value = manifest:extract_value(
+    {beginning_of, <<"patient_information.birth">>, day},
+    {[{<<"patient_information">>,{[{<<"birth">>,<<"1993-04-24T02:25:12">>}]}}]}),
+  ?assertEqual(24, Value).
+
 extract_value_beginning_of_month_test() ->
   Value = manifest:extract_value(
     {beginning_of, <<"patient_information.birth">>, month},
