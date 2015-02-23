@@ -26,6 +26,12 @@ parse_decoded_field_mapping(DecodedFieldMapping) ->
   Type = case get(<<"type">>, DecodedFieldMapping) of
           <<"string">> -> string;
           <<"integer">> -> integer;
+          <<"long">> -> long;
+          <<"float">> -> float;
+          <<"double">> -> double;
+          <<"date">> -> date;
+          <<"location">> -> location;
+          <<"boolean">> -> boolean;
           <<"enum">> -> enum
         end,
   Visibility = parse_decoded_field_visibility(DecodedFieldMapping),

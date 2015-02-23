@@ -22,7 +22,7 @@ manifest_from_json_integration_test() ->
         \"lookup\": \"foo.fux\"
       }}, {
       \"target_field\": \"foobar\",
-      \"type\": \"integer\",
+      \"type\": \"boolean\",
       \"core\": false,
       \"indexed\": false,
       \"pii\": false,
@@ -40,7 +40,7 @@ manifest_from_json_integration_test() ->
   ?assertEqual([
     {field, <<"foo">>,    <<"hello">>, {indexed, string }},
     {field, <<"fux">>,    3,           {pii,     integer}},
-    {field, <<"foobar">>, 1,           {custom,  integer}}], Result).
+    {field, <<"foobar">>, 1,           {custom,  boolean}}], Result).
 
 manifest_from_json_test() ->
   Manifest = manifest_parser:parse(<<"{
