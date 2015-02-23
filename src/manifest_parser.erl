@@ -53,6 +53,7 @@ parse_decoded_source({[{<<"lookup">>,Path}]}) ->
   {lookup, Path };
 parse_decoded_source({[{<<"beginning_of">>,[{[{<<"lookup">>,Path}]}, DecodedPeriod]}]}) ->
   Period = case DecodedPeriod of
+    <<"day">> -> day;
     <<"year">> -> year;
     <<"month">> -> month
   end,
