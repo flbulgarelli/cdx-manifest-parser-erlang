@@ -21,8 +21,16 @@ manifest_from_json_integration_test() ->
       \"source\": {
         \"lookup\": \"foo.fux\"
       }}, {
-      \"target_field\": \"foobar\",
+      \"target_field\": \"bar\",
       \"type\": \"boolean\",
+      \"core\": false,
+      \"indexed\": false,
+      \"pii\": false,
+      \"source\": {
+        \"lookup\": \"foo.bar2\"
+      }}, {
+      \"target_field\": \"foobar\",
+      \"type\": \"date\",
       \"core\": false,
       \"indexed\": false,
       \"pii\": false,
@@ -34,13 +42,15 @@ manifest_from_json_integration_test() ->
     \"foo\": {
       \"bar\":\"hello\",
       \"fux\": 3,
-      \"baz\": \"1990-01-30T00:00:00\"
+      \"bar2\": false,
+      \"baz\": \"1990-04-30T00:00:00\"
     }}">>),
   Result = manifest:apply_to(Manifest, Event),
   ?assertEqual([
-    {field, <<"foo">>,    <<"hello">>, {indexed, string }},
-    {field, <<"fux">>,    3,           {pii,     integer}},
-    {field, <<"foobar">>, 1,           {custom,  boolean}}], Result).
+    {field, <<"foo">>,    <<"hello">>,  {indexed, string }},
+    {field, <<"fux">>,    3,            {pii,     integer}},
+    {field, <<"bar">>,    false,        {custom,  boolean}},
+    {field, <<"foobar">>, {1990, 4, 1}, {custom,  date   }}], Result).
 
 manifest_from_json_test() ->
   Manifest = manifest_parser:parse(<<"{

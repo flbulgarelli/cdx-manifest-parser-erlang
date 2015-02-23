@@ -40,6 +40,6 @@ lookup_string(Path, Event) ->
 lookup_date(Path, Event)   ->
   ec_date:parse(lookup_string(Path, Event)).
 
-beginning_of({{_, _,   Day}, _}, day) -> Day;
-beginning_of({{_, Month, _}, _}, month) -> Month;
-beginning_of({{Year, _,  _}, _},  year) -> Year.
+beginning_of({Date, _}, day) -> Date;
+beginning_of({{Year, Month, _}, _}, month) -> {Year, Month, 1};
+beginning_of({{Year, _,  _}, _},  year) -> {Year, 1, 1}.
