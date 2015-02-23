@@ -27,7 +27,7 @@ manifest_from_json_integration_test() ->
       \"indexed\": false,
       \"pii\": false,
       \"source\": {
-        \"beginning_of\": [{\"path\":\"foo.baz\"}, \"month\"]
+        \"beginning_of\": [{\"lookup\":\"foo.baz\"}, \"month\"]
       }}]
     }">>),
   Event = jiffy:decode(<<"{
@@ -104,6 +104,6 @@ parse_decoded_source_lookup_test() ->
 
 
 parse_decoded_source_beginning_of_test() ->
-  DecodedSource = {[{<<"beginning_of">>,[{[{<<"path">>,<<"patient_information.age">>}]}, <<"month">>]}]},
+  DecodedSource = {[{<<"beginning_of">>,[{[{<<"lookup">>,<<"patient_information.age">>}]}, <<"month">>]}]},
   Source = manifest_parser:parse_decoded_source(DecodedSource),
   ?assertEqual({beginning_of, <<"patient_information.age">>, month}, Source).

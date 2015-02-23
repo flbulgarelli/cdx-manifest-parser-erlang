@@ -51,7 +51,7 @@ parse_decoded_field_visibility({Attrs}) ->
 
 parse_decoded_source({[{<<"lookup">>,Path}]}) ->
   {lookup, Path };
-parse_decoded_source({[{<<"beginning_of">>,[{[{<<"path">>,Path}]}, DecodedPeriod]}]}) ->
+parse_decoded_source({[{<<"beginning_of">>,[{[{<<"lookup">>,Path}]}, DecodedPeriod]}]}) ->
   Period = case DecodedPeriod of
     <<"year">> -> year;
     <<"month">> -> month
