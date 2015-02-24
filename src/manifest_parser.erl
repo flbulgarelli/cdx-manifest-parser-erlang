@@ -12,18 +12,18 @@
 parse(ManifestJson) ->
   parse_decoded(jiffy:decode(ManifestJson)).
 
-parse_decoded({Attrs}) ->
-  Mapping = parse_decoded_mapping(lists:keyfind(<<"field_mapping">>, 1, Attrs)),
+parse_decoded(DecodedManifest) ->
+  Mapping = parse_decoded_mapping(decoded_json:get(<<"field_mapping">>, DecodedManifest)),
   {manifest, {}, Mapping}.
 
-parse_decoded_mapping({ _, DecodedFieldMappings }) ->
+parse_decoded_mapping(DecodedFieldMappings) ->
   lists:map(fun(DecodedFieldMapping) ->
     parse_decoded_field_mapping(DecodedFieldMapping) end,
   DecodedFieldMappings).
 
 parse_decoded_field_mapping(DecodedFieldMapping) ->
-  Target = get(<<"target_field">>, DecodedFieldMapping),
-  Type = case get(<<"type">>, DecodedFieldMapping) of
+  Target = decoded_json:get(<<"target_field">>, DecodedFieldMapping),
+  Type = case decoded_json:get(<<"type">>, DecodedFieldMapping) of
           <<"string">> -> string;
           <<"integer">> -> integer;
           <<"long">> -> long;
@@ -35,13 +35,13 @@ parse_decoded_field_mapping(DecodedFieldMapping) ->
           <<"enum">> -> enum
         end,
   Visibility = parse_decoded_field_visibility(DecodedFieldMapping),
-  Source = parse_decoded_source(get(<<"source">>, DecodedFieldMapping)),
+  Source = parse_decoded_source(decoded_json:get(<<"source">>, DecodedFieldMapping)),
   {field_mapping, Target, Source, {Visibility, Type}}.
 
-parse_decoded_field_visibility({Attrs}) ->
-  case {lists:member({<<"core">>,    true}, Attrs),
-        lists:member({<<"pii">>,     true}, Attrs),
-        lists:member({<<"indexed">>, true}, Attrs)} of
+parse_decoded_field_visibility(DecodedFieldMapping) ->
+  case {decoded_json:is_set(<<"core">>,    DecodedFieldMapping),
+        decoded_json:is_set(<<"pii">>,     DecodedFieldMapping),
+        decoded_json:is_set(<<"indexed">>, DecodedFieldMapping)} of
     {true, true,  _   } -> pii;
     {true,    _,  _   } -> indexed;
     {   _, true,  _   } -> pii;
@@ -58,7 +58,3 @@ parse_decoded_source({[{<<"beginning_of">>,[{[{<<"lookup">>,Path}]}, DecodedPeri
     <<"month">> -> month
   end,
   {beginning_of, Path, Period }.
-
-
-get(Key, {Attrs}) ->
-  element(2, lists:keyfind(Key, 1, Attrs)).
