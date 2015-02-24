@@ -12,7 +12,7 @@ Manifest :: {manifest, Metadata, Mapping}
 Metadata :: {} (*) See below
 Mapping :: [ FieldMapping ]
 FieldMapping :: { field_mapping, Target, Source, Signature }
-Signature :: {Visibility, Type}
+Signature :: {Visibility, Type, Extensions}
 Visibility :: custom | indexed | pii
 Type :: string
         | integer
@@ -27,6 +27,7 @@ Source :: {lookup, Path } |
           {beginning_of, Path, TimeUnit }
 Path :: String
 TimeUnit :: day | month | year
+Extensions :: [ UserDefinedExtensions ]
 ```
 
 # Processing Manifests
@@ -52,10 +53,11 @@ Manifests are proceesed using the `manifest:apply_to/2` function, which expects 
 
 # Parsing Manifests
 
-In order to parse a manifest from a JSON string, just use `manifest_parser:parse/1`, which expects a JSON string and returns a manifest. 
+In order to parse a manifest from a JSON string, you need to create a parser, using `manifest_parser:new()`. Then use `manifest_parser:parse/2`, which expects a JSON string and returns a manifest. 
 
 ```erlang
-manifest_parser:parse(<<"{
+> Parser = manifest_parser:new(),
+> manifest_parser:parse(Parser, <<"{
     \"metadata\": {},
     \"field_mapping\": [{
       \"target_field\": \"foo\",
@@ -75,8 +77,8 @@ manifest_parser:parse(<<"{
 # Full Sample
 
 ```erlang
-
-> Manifest = manifest_parser:parse(<<"{
+> Parser = manifest_parser:new(),
+> Manifest = manifest_parser:parse(Parser, <<"{
     \"metadata\": {},
     \"field_mapping\": [{
       \"target_field\": \"foo\",
