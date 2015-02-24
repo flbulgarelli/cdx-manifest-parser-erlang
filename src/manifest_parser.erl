@@ -5,9 +5,13 @@
 -export([
   parse/1,
   parse_decoded_mapping/1,
-  parse_decoded_field_mapping/1,
+  parse_decoded_field_mapping/1]).
+
+-ifdef(TEST).
+-export([
   parse_decoded_source/1,
   parse_decoded_field_visibility/1]).
+-endif.
 
 parse(ManifestJson) ->
   parse_decoded(jiffy:decode(ManifestJson)).
