@@ -12,18 +12,18 @@
 parse(ManifestJson) ->
   parse_decoded(jiffy:decode(ManifestJson)).
 
-parse_decoded(DecodedManifest) ->
-  Mapping = parse_decoded_mapping(decoded_json:get(<<"field_mapping">>, DecodedManifest)),
+parse_decoded(Manifest) ->
+  Mapping = parse_decoded_mapping(decoded_json:get(<<"field_mapping">>, Manifest)),
   {manifest, {}, Mapping}.
 
-parse_decoded_mapping(DecodedFieldMappings) ->
-  lists:map(fun(DecodedFieldMapping) ->
-    parse_decoded_field_mapping(DecodedFieldMapping) end,
-  DecodedFieldMappings).
+parse_decoded_mapping(FieldMappings) ->
+  lists:map(fun(FieldMapping) ->
+    parse_decoded_field_mapping(FieldMapping) end,
+  FieldMappings).
 
-parse_decoded_field_mapping(DecodedFieldMapping) ->
-  Target = decoded_json:get(<<"target_field">>, DecodedFieldMapping),
-  Type = case decoded_json:get(<<"type">>, DecodedFieldMapping) of
+parse_decoded_field_mapping(FieldMapping) ->
+  Target = decoded_json:get(<<"target_field">>, FieldMapping),
+  Type = case decoded_json:get(<<"type">>, FieldMapping) of
           <<"string">> -> string;
           <<"integer">> -> integer;
           <<"long">> -> long;
@@ -34,14 +34,14 @@ parse_decoded_field_mapping(DecodedFieldMapping) ->
           <<"boolean">> -> boolean;
           <<"enum">> -> enum
         end,
-  Visibility = parse_decoded_field_visibility(DecodedFieldMapping),
-  Source = parse_decoded_source(decoded_json:get(<<"source">>, DecodedFieldMapping)),
+  Visibility = parse_decoded_field_visibility(FieldMapping),
+  Source = parse_decoded_source(decoded_json:get(<<"source">>, FieldMapping)),
   {field_mapping, Target, Source, {Visibility, Type}}.
 
-parse_decoded_field_visibility(DecodedFieldMapping) ->
-  case {decoded_json:is_set(<<"core">>,    DecodedFieldMapping),
-        decoded_json:is_set(<<"pii">>,     DecodedFieldMapping),
-        decoded_json:is_set(<<"indexed">>, DecodedFieldMapping)} of
+parse_decoded_field_visibility(FieldMapping) ->
+  case {decoded_json:is_set(<<"core">>,    FieldMapping),
+        decoded_json:is_set(<<"pii">>,     FieldMapping),
+        decoded_json:is_set(<<"indexed">>, FieldMapping)} of
     {true, true,  _   } -> pii;
     {true,    _,  _   } -> indexed;
     {   _, true,  _   } -> pii;
