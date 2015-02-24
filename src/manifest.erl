@@ -1,6 +1,7 @@
 -module(manifest).
 
 -export([
+  mapping/1,
   apply_to/2,
   apply_mapping_to/2,
   apply_field_mapping_to/2,
