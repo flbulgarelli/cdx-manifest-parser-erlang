@@ -14,7 +14,15 @@ Mapping :: [ FieldMapping ]
 FieldMapping :: { field_mapping, Target, Source, Signature }
 Signature :: {Visibility, Type}
 Visibility :: custom | indexed | pii
-Type :: string | integer | enum
+Type :: string
+        | integer
+        | long
+        | float
+        | double
+        | date
+        | location
+        | boolean
+        | enum
 Source :: {lookup, Path } |
           {beginning_of, Path, TimeUnit }
 ```
