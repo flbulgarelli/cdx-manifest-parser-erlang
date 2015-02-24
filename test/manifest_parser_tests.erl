@@ -70,7 +70,7 @@ manifest_from_json_test() ->
     { field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string, []} }]}, Manifest).
 
 manifest_with_signature_extensions_from_json_test() ->
-  Parser = manifest_parser:new(),
+  Parser = manifest_parser:new([fun(Decoded) -> decoded_json:get(<<"x-foo">>, Decoded) end]),
   Manifest = manifest_parser:parse(Parser, <<"{
     \"metadata\": {},
     \"field_mapping\": [{
@@ -115,6 +115,7 @@ parse_decoded_field_visibility_non_core_custom_test() ->
   ?assertEqual(custom, Visibility).
 
 parse_decoded_field_mapping_test() ->
+  Parser = manifest_parser:new(),
   DecodedFieldMapping = {[
     {<<"target_field">>,<<"foo">>},
     {<<"type">>,<<"string">>},
@@ -123,7 +124,7 @@ parse_decoded_field_mapping_test() ->
     {<<"pii">>,false},
     {<<"source">>,{[{<<"lookup">>,<<"bar">>}]}}
   ]},
-  FieldMapping = manifest_parser:parse_decoded_field_mapping(DecodedFieldMapping),
+  FieldMapping = manifest_parser:parse_decoded_field_mapping(Parser, DecodedFieldMapping),
   ?assertEqual({field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string, []}}, FieldMapping).
 
 parse_decoded_source_lookup_test() ->

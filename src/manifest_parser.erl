@@ -4,9 +4,10 @@
 
 -export([
   new/0,
+  new/1,
   parse/2,
-  parse_decoded_mapping/1,
-  parse_decoded_field_mapping/1]).
+  parse_decoded_mapping/2,
+  parse_decoded_field_mapping/2]).
 
 -ifdef(TEST).
 -export([
@@ -15,21 +16,24 @@
 -endif.
 
 new() ->
-  {parser, []}.
+  new([]).
+
+new(SignatureExtensionParsers) ->
+  {parser, SignatureExtensionParsers}.
 
 parse(Parser, ManifestJson) ->
-  parse_decoded(jiffy:decode(ManifestJson)).
+  parse_decoded(Parser, jiffy:decode(ManifestJson)).
 
-parse_decoded(Manifest) ->
-  Mapping = parse_decoded_mapping(decoded_json:get(<<"field_mapping">>, Manifest)),
+parse_decoded(Parser, Manifest) ->
+  Mapping = parse_decoded_mapping(Parser, decoded_json:get(<<"field_mapping">>, Manifest)),
   {manifest, {}, Mapping}.
 
-parse_decoded_mapping(FieldMappings) ->
+parse_decoded_mapping(Parser, FieldMappings) ->
   lists:map(fun(FieldMapping) ->
-    parse_decoded_field_mapping(FieldMapping) end,
+    parse_decoded_field_mapping(Parser, FieldMapping) end,
   FieldMappings).
 
-parse_decoded_field_mapping(FieldMapping) ->
+parse_decoded_field_mapping(Parser, FieldMapping) ->
   Target = decoded_json:get(<<"target_field">>, FieldMapping),
   Type = case decoded_json:get(<<"type">>, FieldMapping) of
           <<"string">> -> string;
