@@ -35,21 +35,24 @@ parse_decoded_mapping(Parser, FieldMappings) ->
 
 parse_decoded_field_mapping({parser, SignatureExtensionParsers}, FieldMapping) ->
   Target = decoded_json:get(<<"target_field">>, FieldMapping),
-  Type = case decoded_json:get(<<"type">>, FieldMapping) of
-          <<"string">> -> string;
-          <<"integer">> -> integer;
-          <<"long">> -> long;
-          <<"float">> -> float;
-          <<"double">> -> double;
-          <<"date">> -> date;
-          <<"location">> -> location;
-          <<"boolean">> -> boolean;
-          <<"enum">> -> enum
-        end,
+  Type = parse_type(FieldMapping),
   Visibility = parse_decoded_field_visibility(FieldMapping),
   Source = parse_decoded_source(decoded_json:get(<<"source">>, FieldMapping)),
   SignatureExtensions = parse_signature_extensions(SignatureExtensionParsers, FieldMapping),
   {field_mapping, Target, Source, {Visibility, Type, SignatureExtensions}}.
+
+parse_type(FieldMapping) ->
+  case decoded_json:get(<<"type">>, FieldMapping) of
+    <<"string">> -> string;
+    <<"integer">> -> integer;
+    <<"long">> -> long;
+    <<"float">> -> float;
+    <<"double">> -> double;
+    <<"date">> -> date;
+    <<"location">> -> location;
+    <<"boolean">> -> boolean;
+    <<"enum">> -> enum
+  end.
 
 parse_signature_extensions(SignatureExtensionParsers, FieldMapping) ->
   lists:map(fun(SignatureExtensionParser) -> SignatureExtensionParser(FieldMapping) end, SignatureExtensionParsers).
