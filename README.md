@@ -25,6 +25,8 @@ Type :: string
         | enum
 Source :: {lookup, Path } |
           {beginning_of, Path, TimeUnit }
+Path :: String
+TimeUnit :: day | month | year
 ```
 
 # Processing Manifests
