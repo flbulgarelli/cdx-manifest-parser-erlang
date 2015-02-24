@@ -3,7 +3,8 @@
 %% manifest_parser: manifest_parser library's entry point.
 
 -export([
-  parse/1,
+  new/0,
+  parse/2,
   parse_decoded_mapping/1,
   parse_decoded_field_mapping/1]).
 
@@ -13,7 +14,10 @@
   parse_decoded_field_visibility/1]).
 -endif.
 
-parse(ManifestJson) ->
+new() ->
+  {parser, []}.
+
+parse(Parser, ManifestJson) ->
   parse_decoded(jiffy:decode(ManifestJson)).
 
 parse_decoded(Manifest) ->
@@ -40,7 +44,7 @@ parse_decoded_field_mapping(FieldMapping) ->
         end,
   Visibility = parse_decoded_field_visibility(FieldMapping),
   Source = parse_decoded_source(decoded_json:get(<<"source">>, FieldMapping)),
-  {field_mapping, Target, Source, {Visibility, Type}}.
+  {field_mapping, Target, Source, {Visibility, Type, []}}.
 
 parse_decoded_field_visibility(FieldMapping) ->
   case {decoded_json:is_set(<<"core">>,    FieldMapping),
@@ -61,4 +65,4 @@ parse_decoded_source({[{<<"beginning_of">>,[{[{<<"lookup">>,Path}]}, DecodedPeri
     <<"year">> -> year;
     <<"month">> -> month
   end,
-  {beginning_of, Path, Period }.
+  {beginning_of, Path, Period}.

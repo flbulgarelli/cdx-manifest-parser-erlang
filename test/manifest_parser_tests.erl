@@ -2,7 +2,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 manifest_from_json_integration_test() ->
-  Manifest = manifest_parser:parse(<<"{
+  Parser = manifest_parser:new(),
+  Manifest = manifest_parser:parse(Parser, <<"{
     \"metadata\": {},
     \"field_mapping\": [{
       \"target_field\": \"foo\",
@@ -47,13 +48,14 @@ manifest_from_json_integration_test() ->
     }}">>),
   Result = manifest:apply_to(Manifest, Event),
   ?assertEqual([
-    {field, <<"foo">>,    <<"hello">>,  {indexed, string }},
-    {field, <<"fux">>,    3,            {pii,     integer}},
-    {field, <<"bar">>,    false,        {custom,  boolean}},
-    {field, <<"foobar">>, {1990, 4, 1}, {custom,  date   }}], Result).
+    {field, <<"foo">>,    <<"hello">>,  {indexed, string,  []}},
+    {field, <<"fux">>,    3,            {pii,     integer, []}},
+    {field, <<"bar">>,    false,        {custom,  boolean, []}},
+    {field, <<"foobar">>, {1990, 4, 1}, {custom,  date,    []}}], Result).
 
 manifest_from_json_test() ->
-  Manifest = manifest_parser:parse(<<"{
+  Parser = manifest_parser:new(),
+  Manifest = manifest_parser:parse(Parser, <<"{
     \"metadata\": {},
     \"field_mapping\": [{
       \"target_field\": \"foo\",
@@ -65,7 +67,24 @@ manifest_from_json_test() ->
         \"lookup\": \"bar\"
       }}]}">>),
   ?assertEqual({ manifest, {}, [
-    { field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string} }]}, Manifest).
+    { field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string, []} }]}, Manifest).
+
+manifest_with_signature_extensions_from_json_test() ->
+  Parser = manifest_parser:new(),
+  Manifest = manifest_parser:parse(Parser, <<"{
+    \"metadata\": {},
+    \"field_mapping\": [{
+      \"target_field\": \"foo\",
+      \"type\": \"string\",
+      \"core\": true,
+      \"indexed\": true,
+      \"pii\": false,
+      \"x-foo\": 10,
+      \"source\": {
+        \"lookup\": \"bar\"
+      }}]}">>),
+  ?assertEqual({ manifest, {}, [
+    { field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string, [10]} }]}, Manifest).
 
 parse_decoded_field_visibility_core_indexed_test() ->
   Visibility = manifest_parser:parse_decoded_field_visibility({[
@@ -105,7 +124,7 @@ parse_decoded_field_mapping_test() ->
     {<<"source">>,{[{<<"lookup">>,<<"bar">>}]}}
   ]},
   FieldMapping = manifest_parser:parse_decoded_field_mapping(DecodedFieldMapping),
-  ?assertEqual({field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string}}, FieldMapping).
+  ?assertEqual({field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string, []}}, FieldMapping).
 
 parse_decoded_source_lookup_test() ->
   DecodedSource = {[{<<"lookup">>,<<"bar">>}]},
