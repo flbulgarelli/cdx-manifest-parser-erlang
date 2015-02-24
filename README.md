@@ -74,6 +74,32 @@ In order to parse a manifest from a JSON string, you need to create a parser, us
                           {indexed,string}}]}
 ```
 
+## Using Extensions
+
+Sometimes you would like to add to the signature of your fields information that is not cdx-compliant. That is why we support signature extensions. 
+
+Extensions are simply funcitions that take the mapping decoded json - encoded in jiffy format -, and extract the information you want. Example:
+
+```erlang
+> Parser = manifest_parser:new([fun(Decoded) -> decoded_json:get(<<"x-foo">>, Decoded) end]),
+> Manifest = manifest_parser:parse(Parser, <<"{
+    \"metadata\": {},
+    \"field_mapping\": [{
+      \"target_field\": \"foo\",
+      \"type\": \"string\",
+      \"core\": true,
+      \"indexed\": true,
+      \"pii\": false,
+      \"x-foo\": 10,
+      \"source\": {
+        \"lookup\": \"bar\"
+      }}]}">>).
+{manifest,{},
+          [{field_mapping,<<"foo">>,
+                          {lookup,<<"bar">>},
+                          {indexed,string,[10]}}]}
+```
+
 # Full Sample
 
 ```erlang
