@@ -70,7 +70,7 @@ manifest_from_json_test() ->
     { field_mapping, <<"foo">>, {lookup, <<"bar">>}, {indexed, string, []} }]}, Manifest).
 
 manifest_with_signature_extensions_from_json_test() ->
-  Parser = manifest_parser:new([fun(Decoded) -> decoded_json:get(<<"x-foo">>, Decoded) end]),
+  Parser = manifest_parser:new([fun(Decoded) -> [decoded_json:get(<<"x-foo">>, Decoded)] end]),
   Manifest = manifest_parser:parse(Parser, <<"{
     \"metadata\": {},
     \"field_mapping\": [{

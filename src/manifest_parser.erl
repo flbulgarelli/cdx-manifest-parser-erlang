@@ -55,7 +55,9 @@ parse_type(FieldMapping) ->
   end.
 
 parse_signature_extensions(SignatureExtensionParsers, FieldMapping) ->
-  lists:map(fun(SignatureExtensionParser) -> SignatureExtensionParser(FieldMapping) end, SignatureExtensionParsers).
+  lists:flatmap(
+    fun(SignatureExtensionParser) -> SignatureExtensionParser(FieldMapping) end,
+     SignatureExtensionParsers).
 
 parse_decoded_field_visibility(FieldMapping) ->
   case {decoded_json:is_set(<<"core">>,    FieldMapping),
