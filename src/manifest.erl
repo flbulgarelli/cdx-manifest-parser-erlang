@@ -7,11 +7,45 @@
   apply_field_mapping_to/2,
   extract_value/2]).
 
+-export_type([
+  manifest/0,
+  field/0]).
+
+-type manifest() :: {manifest, metadata(), mapping()}.
+-type metadata() :: any().
+-type mapping()  :: [field_mapping()].
+-type field_mapping() :: { field_mapping, target(), source(), signature() }.
+-type target()   :: field_name().
+-type source()   :: {lookup, path()}
+                  | {beginning_of, path(), time_unit() }.
+-type signature() :: {visibility(), type(), extensions()}.
+-type field_name() :: binary().
+-type path()      :: binary().
+-type time_unit() :: day | month | year.
+-type visibility() :: custom | indexed | pii.
+-type type() :: string
+              | integer
+              | long
+              | float
+              | double
+              | date
+              | location
+              | boolean
+              | enum.
+-type extensions() :: [any()].
+
+-type field() :: {field, field_name(), Value::any(), signature()}.
+
+-type event() :: any(). %%Actualy jiffy json
+
+-spec mapping(manifest()) -> mapping().
 mapping({manifest, _, Mapping}) -> Mapping.
 
+-spec apply_to(manifest(), event()) -> [field()].
 apply_to(Manifest, Event) ->
   apply_mapping_to(mapping(Manifest), Event).
 
+-spec apply_mapping_to(mapping(), event()) -> [field()].
 apply_mapping_to(Mapping, Event) ->
   lists:map(fun(FieldMapping) ->
       apply_field_mapping_to(FieldMapping, Event)
