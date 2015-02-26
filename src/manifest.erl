@@ -47,8 +47,11 @@ apply_to(Manifest, Event) ->
 
 -spec apply_mapping_to(mapping(), event()) -> [field()].
 apply_mapping_to(Mapping, Event) ->
-  lists:map(fun(FieldMapping) ->
-      apply_field_mapping_to(FieldMapping, Event)
+  lists:flatmap(fun(FieldMapping) ->
+      case catch apply_field_mapping_to(FieldMapping, Event) of
+        {undefined_path, _, _} -> [];
+        Value = {field, _, _, _} -> [Value]
+      end
     end,
     Mapping).
 
@@ -67,7 +70,7 @@ extract_value({convert_time, _, _}, _Event) -> ok.
 
 lookup_raw(Path, Event)    ->
   case jsonpath:search(Path, Event) of
-    undefined -> error({undefined_path, Path, Event});
+    undefined -> throw({undefined_path, Path, Event});
     X -> X
   end.
 lookup_string(Path, Event) ->

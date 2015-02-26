@@ -14,6 +14,24 @@ apply_mapping_test() ->
   Fields = manifest:apply_mapping_to(Mapping, Event),
   ?assertEqual([{field, <<"foo">>, 21, {indexed, string}}], Fields).
 
+apply_mapping_with_missing_data_test() ->
+  Mapping =  [
+    { field_mapping, <<"foo">>, {lookup, <<"patient_information.age">>},  {indexed, string} },
+    { field_mapping, <<"bar">>, {lookup, <<"patient_information.name">>}, {indexed, string} }],
+  Event = {[{<<"patient_information">>,{[{<<"age">>,21}]}}]},
+  Fields = manifest:apply_mapping_to(Mapping, Event),
+  ?assertEqual([{field, <<"foo">>, 21, {indexed, string}}], Fields).
+
+apply_mapping_with_extra_data_test() ->
+  Mapping =  [{ field_mapping, <<"bar">>, {lookup, <<"patient_information.name">>}, {indexed, string} }],
+  Event = {[
+    {<<"patient_information">>,{[
+      {<<"age">>,21},
+      {<<"name">>,<<"jon doe">>}
+    ]}}]},
+  Fields = manifest:apply_mapping_to(Mapping, Event),
+  ?assertEqual([{field, <<"bar">>, <<"jon doe">>, {indexed, string}}], Fields).
+
 apply_field_mapping_test() ->
   Field = manifest:apply_field_mapping_to(
     { field_mapping, <<"foo">>, {lookup, <<"patient_information.age">>}, {indexed, string} },
@@ -48,4 +66,4 @@ extract_value_lookup_test() ->
 extract_value_lookup_error_test() ->
   Path = <<"name">>,
   Event = {[]},
-  ?assertError({undefined_path, Path, Event}, manifest:extract_value({lookup, Path}, Event)).
+  ?assertThrow({undefined_path, Path, Event}, manifest:extract_value({lookup, Path}, Event)).
