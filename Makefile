@@ -49,7 +49,7 @@ APP_CMD += -cepheid_receiver db_name "<<\"cepheid_development_$(subst -,_,$(BRAN
 endif
 endif
 
-all: deps compile
+all: deps compile dialyzer
 
 # =============================================================================
 # Rules to build the system
@@ -83,7 +83,7 @@ $(DEPS_PLT):
 	   --apps $(DEPS) -r deps
 
 dialyzer: $(DEPS_PLT)
-	dialyzer --fullpath --plt $(DEPS_PLT) -Wrace_conditions -r ./ebin
+	dialyzer --fullpath --plt $(DEPS_PLT) -Wrace_conditions --src src
 
 typer:
 	typer --plt $(DEPS_PLT) -r ./src -I ./include
