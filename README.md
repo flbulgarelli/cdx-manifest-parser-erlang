@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/instedd/cdx-manifest-parser.svg?branch=master)](https://travis-ci.org/instedd/cdx-manifest-parser)
+
+
 CDX Manifest Parser
 ===================
 
