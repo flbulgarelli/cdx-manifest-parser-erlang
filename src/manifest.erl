@@ -74,9 +74,12 @@ lookup_raw(Path, Event)    ->
     X -> X
   end.
 
-beginning_of({Date, _}, day) -> blank_time(Date);
-beginning_of({{Year, Month, _}, _}, month) -> blank_time({Year, Month, 1});
-beginning_of({{Year, _,  _}, _},  year) -> blank_time({Year, 1, 1}).
+beginning_of({Date, _}, TimeUnit) -> blank_time(truncate_date(Date, TimeUnit)).
+
+truncate_date(Date, day) -> Date;
+truncate_date({Year, Month, _}, month) -> {Year, Month, 1};
+truncate_date({Year, _,  _},  year) -> {Year, 1, 1}.
+
 blank_time(Date) -> {Date, {0, 0, 0}}.
 
 transform_json_date(RawJsonDate, Transformation) ->
