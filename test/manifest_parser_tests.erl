@@ -48,10 +48,10 @@ manifest_from_json_integration_test() ->
     }}">>),
   Result = manifest:apply_to(Manifest, Event),
   ?assertEqual([
-    {field, <<"foo">>,    <<"hello">>,  {indexed, string,  []}},
-    {field, <<"fux">>,    3,            {pii,     integer, []}},
-    {field, <<"bar">>,    false,        {custom,  boolean, []}},
-    {field, <<"foobar">>, {1990, 4, 1}, {custom,  date,    []}}], Result).
+    {field, <<"foo">>,    <<"hello">>,           {indexed, string,  []}},
+    {field, <<"fux">>,    3,                     {pii,     integer, []}},
+    {field, <<"bar">>,    false,                 {custom,  boolean, []}},
+    {field, <<"foobar">>, "1990-04-01T00:00:00", {custom,  date,    []}}], Result).
 
 manifest_from_json_test() ->
   Parser = manifest_parser:new(),

@@ -43,19 +43,19 @@ extract_value_beginning_of_day_test() ->
   Value = manifest:extract_value(
     {beginning_of, <<"patient_information.birth">>, day},
     {[{<<"patient_information">>,{[{<<"birth">>,<<"1993-04-24T02:25:12">>}]}}]}),
-  ?assertEqual({1993, 04, 24}, Value).
+  ?assertEqual("1993-04-24T00:00:00", Value).
 
 extract_value_beginning_of_month_test() ->
   Value = manifest:extract_value(
     {beginning_of, <<"patient_information.birth">>, month},
     {[{<<"patient_information">>,{[{<<"birth">>,<<"1993-04-24T02:25:12">>}]}}]}),
-  ?assertEqual({1993, 04, 01}, Value).
+  ?assertEqual("1993-04-01T00:00:00", Value).
 
 extract_value_beginning_of_year_test() ->
   Value = manifest:extract_value(
     {beginning_of, <<"patient_information.birth">>, year},
     {[{<<"patient_information">>,{[{<<"birth">>,<<"1993-04-24T02:25:12">>}]}}]}),
-  ?assertEqual({1993, 01, 01}, Value).
+  ?assertEqual("1993-01-01T00:00:00", Value).
 
 extract_value_lookup_test() ->
   Value = manifest:extract_value(

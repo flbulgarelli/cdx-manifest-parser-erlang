@@ -61,7 +61,7 @@ apply_field_mapping_to({field_mapping, Target, Source, Signature}, Event) ->
 extract_value({lookup, Path}, Event) ->
   lookup_raw(Path, Event);
 extract_value({beginning_of, Path, TimeUnit}, Event) ->
-  beginning_of(lookup_date(Path, Event), TimeUnit);
+  transform_json_date(lookup_string(Path, Event), fun(Date) -> beginning_of(Date, TimeUnit) end);
 extract_value({strip, _, _}, _Event) -> ok;
 extract_value({concat, _, _}, _Event) -> ok;
 extract_value({substring, _, _}, _Event) -> ok;
@@ -75,9 +75,11 @@ lookup_raw(Path, Event)    ->
   end.
 lookup_string(Path, Event) ->
   binary:bin_to_list(lookup_raw(Path, Event)).
-lookup_date(Path, Event)   ->
-  ec_date:parse(lookup_string(Path, Event)).
 
-beginning_of({Date, _}, day) -> Date;
-beginning_of({{Year, Month, _}, _}, month) -> {Year, Month, 1};
-beginning_of({{Year, _,  _}, _},  year) -> {Year, 1, 1}.
+beginning_of({Date, _}, day) -> blank_time(Date);
+beginning_of({{Year, Month, _}, _}, month) -> blank_time({Year, Month, 1});
+beginning_of({{Year, _,  _}, _},  year) -> blank_time({Year, 1, 1}).
+blank_time(Date) -> {Date, {0, 0, 0}}.
+
+transform_json_date(JsonDate, Transformation) ->
+  ec_date:format("Y-m-dTh:i:s", Transformation(ec_date:parse(JsonDate))).
