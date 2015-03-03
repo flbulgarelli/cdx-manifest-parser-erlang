@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/instedd/cdx-manifest-parser.svg?branch=master)](https://travis-ci.org/instedd/cdx-manifest-parser)
+[![Build Status](https://travis-ci.org/instedd/cdx-manifest-parser-erlang.svg?branch=master)](https://travis-ci.org/instedd/cdx-manifest-parser-erlang)
 
 
 CDX Manifest Parser
